@@ -12,6 +12,7 @@ start_time = time.time()
 # ==========================================
 # Load Image with commandline
 # ==========================================
+
 image_path = sys.argv [1] if len(sys.argv) > 1 else "R.png"
 image = cv2.imread(image_path)
 request_id = f"demo-palm-{uuid.uuid4().hex[:6]}"
@@ -42,7 +43,7 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
 avg_brightness = np.mean(gray)
 is_blurry = laplacian_var < 40.0
-is_dark = avg_brightness < 35.0
+is_dark = avg_brightness < 30.0
 if is_blurry or is_dark:
     warnings = []
     if is_blurry: warnings.append("image_blurry")
@@ -216,7 +217,7 @@ overlay[lines > 0] = [255, 0, 0]
 # ==========================================
 # Feature extraction
 # ==========================================
-img_h, img_w = image.shape  [:2]
+img_h, img_w = image.shape[:2]
 edge_density = float(np.sum(edges > 0) / edges.size)
 
 features = {
@@ -265,9 +266,53 @@ print(json.dumps(success_response, indent=4))
 # One Large Teaching Figure
 # ==========================================
 
+# ==========================================
+# One Large Teaching Figure
+# ==========================================
 fig, ax = plt.subplots(2, 5, figsize=(20, 10))
+
 ax[0,0].imshow(image_rgb)
 ax[0,0].set_title("1. Original")
+
+ax[0,1].imshow(gray, cmap="gray")
+ax[0,1].set_title("2. Grayscale")
+
+ax[0,2].imshow(blurred, cmap="gray")
+ax[0,2].set_title("3. Gaussian Blur")
+
+ax[0,3].imshow(gradient_display, cmap="gray")
+ax[0,3].set_title("4. Gradient Magnitude")
+
+ax[0,4].imshow(edges, cmap="gray")
+ax[0,4].set_title("5. Canny Edges")
+
+ax[1,0].imshow(enhanced, cmap="gray")
+ax[1,0].set_title("6. CLAHE")
+
+ax[1,1].imshow(blackhat, cmap="gray")
+ax[1,1].set_title("7. Blackhat")
+
+ax[1,2].imshow(lines, cmap="gray")
+ax[1,2].set_title("8. Palm Line Mask")
+
+ax[1,3].imshow(overlay)
+ax[1,3].set_title("9. Palm Lines Overlay")
+
+ax[1,4].imshow(result)
+ax[1,4].set_title("10. Features & Landmarks")
+
+# Hide axes ticks for a cleaner look
+for a in ax.ravel():
+    a.axis("off")
+
 plt.tight_layout()
 plt.show()
+
+# TerminalCommands #=======================================================
+# =========================================================================
+# python3 CVpalm.py /Users/kaden/PycharmProjects/CVpalm/R.png
+# python3 CVpalm.py /Users/kaden/PycharmProjects/CVpalm/t.jpg
+# python3 CVpalm.py /Users/kaden/PycharmProjects/CVpalm/y.jpeg
+# python3 CVpalm.py /Users/kaden/PycharmProjects/CVpalm/u.jpg
+#==========================================================================
 
